@@ -20,4 +20,18 @@ func init() {
 	orm.RegisterModel(new(List))
 }
 
+func (*List) GetAllByUserId(userId uint) (*[]*List, int64, error) {
+	o := orm.NewOrm()
+
+	var lists []*List
+
+	num, err := o.QueryTable("list").Filter("belong", userId).RelatedSel().All(&lists)
+
+	if err != nil {
+		return nil, 0, err
+	} else {
+		return &lists, num, nil
+	}
+}
+
 
