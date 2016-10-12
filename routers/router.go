@@ -6,5 +6,7 @@ import (
 )
 
 func init() {
-	beego.Router("/api/list", &controllers.ListController{}, "get:List")
+	beego.Router("/api/list/:id:int", &controllers.ListController{}, "get:List")
+
+	beego.Router("/api/list/add", &controllers.ListController{}, "post:Add")
 }
