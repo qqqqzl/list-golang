@@ -25,18 +25,15 @@ type ResData struct {
 
 func (this *ListController) List() {
 
-	var list models.List
-	var res Res
-
 	userId, err := strconv.ParseUint(this.Ctx.Input.Param(":id"), 10, 0)
 
 	if err != nil {
-		res = Res{Errno:1, Errmsg:"invalid user id"}
+		res := Res{Errno:1, Errmsg:"invalid user id"}
 		this.Data["json"] = res
 		this.ServeJSON()
 	} else {
-		lists, num, err := list.GetAllByUserId(uint(userId))
-
+		lists, num, err := (&models.List{}).GetAllByUserId(uint(userId))
+		var res Res
 		if err != nil {
 			res = Res{Errno:1, Errmsg:"can not find record"}
 		} else {
@@ -65,8 +62,22 @@ func (this *ListController) Add() {
 		res := Res{Errno:1, Errmsg:errmsg}
 		this.Data["json"] = res
 		this.ServeJSON()
-	}
+	} else {
+		record := models.List{
+			Title:title,
+			Content:content,
+		}
 
+		_, err := record.AddRecord()
+		var res Res
+		if err != nil {
+			res = Res{Errno:1, Errmsg:"add record fail"}
+		} else {
+			res = Res{Errno:0, Errmsg:"success"}
+		}
+		this.Data["json"] = res
+		this.ServeJSON()
+	}
 }
 
 
