@@ -15,7 +15,7 @@ type ListController struct {
 type Res struct {
 	Errno  uint
 	Errmsg string
-	Data   *ResData
+	Data   interface{}
 }
 
 type ResData struct {
@@ -68,12 +68,14 @@ func (this *ListController) Add() {
 			Content:content,
 		}
 
-		_, err := record.AddRecord()
+		recordId, err := record.AddRecord()
 		var res Res
 		if err != nil {
 			res = Res{Errno:1, Errmsg:"add record fail"}
 		} else {
-			res = Res{Errno:0, Errmsg:"success"}
+			res = Res{Errno:0, Errmsg:"success", Data:struct {
+				Id uint
+			}{recordId}}
 		}
 		this.Data["json"] = res
 		this.ServeJSON()
