@@ -9,7 +9,7 @@ import (
 type List struct {
 	Id      uint
 	Title   string
-	Content string
+	Content string    `orm:"default(\"\")"`
 	Ctime   time.Time `orm:"auto_now_add;type(datetime)"`
 	Mtime   time.Time `orm:"auto_now;type(datetime)"`
 	Belong  uint8     `orm:"default(0)"`
@@ -17,21 +17,39 @@ type List struct {
 	Deleted uint8     `orm:"default(0)"`
 }
 
+type ListRes struct {
+	Id      uint
+	Title   string
+	Content string
+	Ctime   string
+	Mtime   string
+}
+
 func init() {
 	orm.RegisterModel(new(List))
 }
 
-func (*List) GetAllByUserId(userId uint) (*[]*List, int64, error) {
+func (*List) GetAllByUserId(userId uint) (*[]*ListRes, int64, error) {
 	o := orm.NewOrm()
 
 	var lists []*List
 
-	num, err := o.QueryTable("list").Filter("belong", userId).RelatedSel().All(&lists)
+	num, err := o.QueryTable("list").Filter("belong", userId).OrderBy("-Ctime").RelatedSel().All(&lists)
 
 	if err != nil {
 		return nil, 0, err
 	} else {
-		return &lists, num, nil
+		listRes := make([]*ListRes, len(lists))
+		for i, item := range lists {
+			listRes[i] = &ListRes{
+				item.Id,
+				item.Title,
+				item.Content,
+				item.Ctime.Format("2006-01-02 15:04:05"),
+				item.Mtime.Format("2006-01-02 15:04:05"),
+			}
+		}
+		return &listRes, num, nil
 	}
 }
 

@@ -19,7 +19,7 @@ type Res struct {
 }
 
 type ResData struct {
-	Lists *[]*models.List
+	Lists *[]*models.ListRes
 	Total int64
 }
 
@@ -51,7 +51,6 @@ func (this *ListController) Add() {
 
 	valid := validation.Validation{}
 	valid.Required(title, "title")
-	valid.Required(content, "content")
 
 	var errmsg string
 	if valid.HasErrors() {
