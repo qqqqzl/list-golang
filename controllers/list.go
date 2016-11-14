@@ -50,7 +50,7 @@ func (this *ListController) Add() {
 	content := this.GetString("content")
 
 	valid := validation.Validation{}
-	valid.Required(title, "title")
+	valid.Required(title, "title")//@todo
 
 	var errmsg string
 	if valid.HasErrors() {
@@ -75,6 +75,51 @@ func (this *ListController) Add() {
 			res = Res{Errno:0, Errmsg:"success", Data:struct {
 				Id uint
 			}{recordId}}
+		}
+		this.Data["json"] = res
+		this.ServeJSON()
+	}
+}
+
+func (this *ListController) Update() {
+
+	content := this.GetString("content")
+	title := this.GetString("title")
+	id := this.GetString("id")
+
+	valid := validation.Validation{}
+	valid.Numeric(id, "id")
+	valid.Required(title, "title")
+
+	var errmsg string
+	if valid.HasErrors() {
+		for _, err := range valid.Errors {
+			errmsg += " " + err.Key + " : " + err.Message + " ; "
+			log.Println(err.Key, err.Message)
+		}
+		res := Res{Errno:1, Errmsg:errmsg}
+		this.Data["json"] = res
+		this.ServeJSON()
+	} else {
+		var res Res
+		id, err := strconv.ParseUint(id, 10, 0)
+		if err != nil {
+			res = Res{Errno:1, Errmsg:"id illegal"}
+		} else {
+			record := models.List{
+				Content:content,
+				Title:title,
+				Id:uint(id),
+			}
+
+			effectRows, err := record.UpdateRecord()
+			if err != nil {
+				res = Res{Errno:1, Errmsg:"update record fail"}
+			} else {
+				res = Res{Errno:0, Errmsg:"success", Data:struct {
+					effectRows int64
+				}{effectRows}}
+			}
 		}
 		this.Data["json"] = res
 		this.ServeJSON()

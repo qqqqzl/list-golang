@@ -64,3 +64,43 @@ func (record *List) AddRecord() (uint, error) {
 		return uint(id), nil
 	}
 }
+
+func (record *List) UpdateRecord() (int64, error) {
+	o := orm.NewOrm()
+
+	oldList := List{Id:(*record).Id}
+	err := o.Read(&oldList)
+	if (err == nil) {
+		oldList.Title = (*record).Title
+		oldList.Content = (*record).Content
+		if effectRows, err := o.Update(&oldList); err == nil {
+			return effectRows, nil
+		} else {
+			return 0, err
+		}
+	} else {
+		return 0, err
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
